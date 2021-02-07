@@ -486,6 +486,13 @@ YoY_Comparison_Long <- function(Group1Name, #drug code 1
   
 }
 
+Year_Range <- c("2018", "2020")
+Drug_Codes_Selected <- c("Antiepileptic drugs",
+                        "Antidepressant drugs")
+Metric_to_Eval <- "Prescriptions"
+Region_to_Eval <-"England"
+
+
 # temp <- Total_Avg_Comparison("Antiepileptic drugs", 
 #                      "Antidepressant drugs", 
 #                      "Prescriptions",
@@ -541,6 +548,73 @@ Total_Avg_Comparison <- function(Group1Name, #drug code 1
   
   
 }
+
+
+RelabelFuncTest <- as.vector(
+  c(1,12,123,1234,12345,123456,1234567,12345678,123456789)
+)
+
+
+
+RelabelFunc <- function(x) {
+  
+  new_labels <- data.frame(
+    Numbers = character()
+  )
+  
+  for (val in as.vector(x)) {
+    
+  label_char <- "" #label if need to identify units (k- thousand, M-million, B-billion)
+  DivFactor <- 0 #exponent for division for digits (10^DivFactor)
+  roundUnit <- 0 #digits specified for round function (0 = ones, 1 = tenths)
+  
+  #Get log 10 of value and relabel appropriately
+  #ones, tens, hundreds -> no relabel
+  if(val <= 99)
+  {label_char <- ""}
+  #thousands, tens-thousands, hundreds-thousands -> thousands relabel
+  else if(val <= 99999)
+  {
+    label_char <- "k"
+    DivFactor <- 3
+  }
+  #millions, tens-millions, hundreds-millions -> millions relabel
+  else if(val <= 99999999)
+  {
+    label_char <- "M"
+    DivFactor <- 6
+  }
+  #billions, tens-billions, hundreds-billions -> billions relabel
+  else if(val < 99999999999)
+  {
+    label_char <- "B"
+    DivFactor <- 9
+  }
+  
+  # #change roundUnit to 1 if units are same as new groupings
+  # #to have tens digit variability in graph
+  
+  if(floor(log10(val)) %% 3 == 2 | floor(log10(val)) %% 3 == 0)
+  {
+    roundUnit = 1
+  }
+  
+  new_labels<- 
+  rbind(paste( #paste all characters/strings into one string
+    as.character( #change to character
+      round(val/10^(DivFactor) #get values for new units
+            ,roundUnit)) #round to units or tenths digit
+    , label_char, sep = ""), #label_char is unit (k- thousand, M-million, B-billion)
+    new_labels
+  )
+  }
+  
+  typeof(new_labels)
+  
+  return(as.vector(new_labels))
+    
+}
+
 
 
 

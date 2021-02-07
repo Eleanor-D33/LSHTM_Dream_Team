@@ -92,7 +92,42 @@ server <- function(input, output) {
      
     
   }, height = 500, width = 800) # Size of plot
- 
+  
+  
+  output$VolumePlotTable <- renderTable({
+    
+          Year_Range <- input$Year_Range #assigns Year Range slider values to Year_Range
+          
+          Metric_to_Eval <- input$Metric_Evaluated #Assigns Metric_Evaluated drop down to Metric_to_Eval
+          
+          Drug_Codes_Selected <- c(input$Drug_Code_Select_1, #Assigns two Drug Codes to two item list
+                                   input$Drug_Code_Select_2)
+          
+          Region_to_Eval <- input$Region_Input #Assigns Region selected to Region_to_Eval
+          
+          #Filters out assigned year-color scheme for years to be present in graph
+          GraphScale <- YearColor %>% 
+            filter(as.numeric(Year) >= Year_Range[1] & Year <=  Year_Range[2])
+          
+          
+          Long_Raw_Data_Table %>% #pre-processed data table
+            filter(Year >= Year_Range[1] & Year <=  Year_Range[2]) %>% # filter for years selected
+            filter(Description %in% Drug_Codes_Selected) %>% #filter for Descriptions selected
+            filter(Metric_Name == Metric_to_Eval) %>% #filter for metric chosen to evaluate
+            filter(Region == Region_to_Eval) %>% #filter for Region chosen to evaluate
+            select(Description, Year, Month, Value) %>% 
+            mutate(Year = as.character(Year),
+                   Desc = paste(substr(Description,1,10), "...", sep="")#,
+                   #Value = RelabelFunc(Value)
+                   ) %>% 
+            select(Desc, Year, Month, Value) %>% 
+            pivot_wider(names_from = Month,
+                         values_from = Value)
+  },
+  options = list(autoWidth = TRUE)
+                
+  )
+  
   output$YoYPlot <- renderPlot({
     
     Year_Range <- input$Year_Range #assigns Year Range slider values to Year_Range
@@ -137,6 +172,41 @@ server <- function(input, output) {
     
     
   }, height = 500, width = 800) #size of graph
+  
+  output$YoYPlotTable <- renderTable({
+    
+    Year_Range <- input$Year_Range #assigns Year Range slider values to Year_Range
+    
+    Metric_to_Eval <- input$Metric_Evaluated #Assigns Metric_Evaluated drop down to Metric_to_Eval
+    
+    Drug_Codes_Selected <- c(input$Drug_Code_Select_1, #Assigns two Drug Codes to two item list
+                             input$Drug_Code_Select_2)
+    
+    Region_to_Eval <- input$Region_Input #Assigns Region selected to Region_to_Eval
+    
+    #Filters out assigned year-color scheme for years to be present in graph
+    GraphScale <- YearColor %>% 
+      filter(as.numeric(Year) >= Year_Range[1] & Year <=  Year_Range[2])
+      
+      Long_YoY_Numbers %>% #pre-processed data table
+      filter(Year >= Year_Range[1] & Year <=  Year_Range[2]) %>% # filter for years selected
+      filter(Description %in% Drug_Codes_Selected) %>% #filter for Descriptions selected
+      filter(Metric_Name == Metric_to_Eval) %>% #filter for metric chosen to evaluate
+      filter(Region == Region_to_Eval) %>% #filter for Region chosen to evaluate
+      select(Description, Year, Month, Value) %>% 
+      mutate(Year = as.character(Year),
+             Desc = paste(substr(Description,1,10), "...", sep=""),
+             Value = paste(round(Value,1), "%", sep ="")
+      ) %>% 
+      select(Desc, Year, Month, Value) %>% 
+      pivot_wider(names_from = Month,
+                  values_from = Value)
+  },
+  options = list(autoWidth = TRUE)
+  
+  )
+  
+  
   
   output$YoYCompare <- renderPlot({
     
@@ -186,13 +256,44 @@ server <- function(input, output) {
       scale_fill_manual(breaks = GraphScale$Year, #breaks for Years
                          values= GraphScale$Color #set colors for graph based on years
       )
-    
-    
-    
-    
-    
    
    }, height = 500, width = 800) #size of graph
+  
+  output$YoYCompareTable <- renderTable({
+    
+    Year_Range <- input$Year_Range #assigns Year Range slider values to Year_Range
+    
+    Metric_to_Eval <- input$Metric_Evaluated #Assigns Metric_Evaluated drop down to Metric_to_Eval
+    
+    Drug_Codes_Selected <- c(input$Drug_Code_Select_1, #Assigns two Drug Codes to two item list
+                             input$Drug_Code_Select_2)
+    
+    Region_to_Eval <- input$Region_Input #Assigns Region selected to Region_to_Eval
+    
+    #Filters out assigned year-color scheme for years to be present in graph
+    GraphScale <- YearColor %>% 
+      filter(as.numeric(Year) >= Year_Range[1] & Year <=  Year_Range[2])
+    
+    YOY_Comparison_Table <- #This is a created function to calculate the difference in YoY % Change for
+      YoY_Comparison_Long(Drug_Codes_Selected[1], #Drug Code 1
+                          Drug_Codes_Selected[2], #by Drug Code 2
+                          Metric_to_Eval, # for the chosen metric
+                          Region_to_Eval) #filter for Region chosen to evaluate
+    
+    YOY_Comparison_Table %>% 
+      filter(Year >= Year_Range[1] & Year <=  Year_Range[2]) %>% # filter for years selected
+      mutate (Year = factor(Year)) %>% #Change year to factor
+      select(Year, Month, Value_Comparison) %>% 
+      mutate(Year = as.character(Year),
+             Value_Comparison = paste(round(Value_Comparison,1), "%", sep ="")
+      ) %>% 
+      select(Year, Month, Value_Comparison) %>% 
+      pivot_wider(names_from = Month,
+                  values_from = Value_Comparison)
+  },
+  options = list(autoWidth = TRUE)
+  
+  )
    
   
   output$PercentofRegionComparison <- renderPlot({
@@ -255,7 +356,43 @@ server <- function(input, output) {
     
   }, height = 500, width = 800) #size of graph
   
+  output$PercentofRegionComparisonTable <- renderTable({
+    
+    Year_Range <- input$Year_Range #assigns Year Range slider values to Year_Range
+    
+    Metric_to_Eval <- input$Metric_Evaluated #Assigns Metric_Evaluated drop down to Metric_to_Eval
+    
+    Drug_Codes_Selected <- c(input$Drug_Code_Select_1, #Assigns two Drug Codes to two item list
+                             input$Drug_Code_Select_2)
+    
+    Region_to_Eval <- input$Region_Input #Assigns Region selected to Region_to_Eval
+    
+    #Filters out assigned year-color scheme for years to be present in graph
+    GraphScale <- YearColor %>% 
+      filter(as.numeric(Year) >= Year_Range[1] & Year <=  Year_Range[2])
+    
+    Percent_of_Region <- #This is a created function to calculate the percent of a drug class for a region
+      Total_Avg_Comparison(Drug_Codes_Selected[1], #Drug Code 1
+                           Drug_Codes_Selected[2], #by Drug Code 2
+                           Metric_to_Eval, # for the chosen metric
+                           Region_to_Eval) #filter for Region chosen to evaluate
+    
+    
+    Percent_of_Region %>% 
+      filter(Year >= Year_Range[1] & Year <=  Year_Range[2]) %>% # filter for years selected
+      mutate (Year = factor(Year)) %>% #Change year to factor
+      select(Description, Year, Month, Value_Comparison) %>% 
+      mutate(Year = as.character(Year),
+             Desc = paste(substr(Description,1,10), "...", sep=""),
+             Value_Comparison = paste(round(Value_Comparison,2), "%", sep ="")
+      ) %>% 
+      select(Desc, Year, Month, Value_Comparison) %>% 
+      pivot_wider(names_from = Month,
+                  values_from = Value_Comparison)
+  },
+  options = list(autoWidth = TRUE)
   
+  )
   
 }
 
@@ -323,11 +460,23 @@ ui <- shinyUI(fluidPage(
       # p('2016 has no YoY data'), #outputted text
       # hr(),
       tabsetPanel(
-        tabPanel("Volume Plot", plotOutput("VolumePlot",width="100%")), #tab1 Volume Plot
-        tabPanel("YoY By Drug Class", plotOutput("YoYPlot",width="100%")), #tab2 YoY Plot
-        tabPanel("YoY Comparing Drug Classes", plotOutput("YoYCompare",width="100%")), #tab3 YoY compare plot
-        tabPanel("Percent of Region Comparison", plotOutput("PercentofRegionComparison", width="100%")) #tab4 Percent of Region compare plot
-        
+        tabPanel("Volume Plot", 
+                 fixedRow(plotOutput("VolumePlot",width="100%"), div(style = "height:150px")),
+                 fixedRow(tableOutput("VolumePlotTable"))
+                 ),#tab1 Volume Plot
+        tabPanel("YoY By Drug Class", 
+                 fixedRow(plotOutput("YoYPlot",width="100%"), div(style = "height:150px")),
+                 fixedRow(tableOutput("YoYPlotTable"))
+                 ), #tab2 YoY Plot
+        tabPanel("YoY Comparing Drug Classes",
+                 fixedRow(plotOutput("YoYCompare",width="100%"), div(style = "height:150px")),
+                 fixedRow(tableOutput("YoYCompareTable"))         
+                 
+                 ), #tab3 YoY compare plot
+        tabPanel("Percent of Region Comparison", 
+                 plotOutput("PercentofRegionComparison", width="100%"), div(style = "height:150px"),
+                fixedRow(tableOutput("PercentofRegionComparisonTable")) #tab4 Percent of Region compare plot
+                )
       )
     )
   )
