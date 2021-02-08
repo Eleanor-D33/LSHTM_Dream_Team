@@ -549,12 +549,13 @@ Total_Avg_Comparison <- function(Group1Name, #drug code 1
   
 }
 
-
+rm(RelabelFuncTest)
 RelabelFuncTest <- as.vector(
   c(1,12,123,1234,12345,123456,1234567,12345678,123456789)
 )
 
 
+RelabelFunc(RelabelFuncTest)
 
 RelabelFunc <- function(x) {
   
@@ -562,7 +563,7 @@ RelabelFunc <- function(x) {
     Numbers = character()
   )
   
-  for (val in as.vector(x)) {
+  for (val in rev(x)) {
     
   label_char <- "" #label if need to identify units (k- thousand, M-million, B-billion)
   DivFactor <- 0 #exponent for division for digits (10^DivFactor)
@@ -609,9 +610,9 @@ RelabelFunc <- function(x) {
   )
   }
   
-  typeof(new_labels)
   
-  return(as.vector(new_labels))
+  
+  return((new_labels))
     
 }
 

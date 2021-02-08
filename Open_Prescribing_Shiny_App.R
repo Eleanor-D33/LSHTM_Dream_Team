@@ -79,7 +79,8 @@ server <- function(input, output) {
              axis.text.y = element_text(hjust = 0.5, size = 10), #y axis aesthetics
              plot.title = element_text(hjust = 0.5, size = 30), #plot title aesthetics
              legend.title = element_text(size = 25), #legend title aesthetics
-             legend.text = element_text(size = 15)) + #legend text aesthetics
+             legend.text = element_text(size = 15), #legend text aesthetics
+             legend.position = "bottom") + 
        labs(title= paste(Metric_to_Eval, "By Drug Class"), #graph title (metric eval pasted in)
             x ="Month", #Name Month as x axis title
             y = Metric_to_Eval, #Name Metric chosen as Y axis title
@@ -117,12 +118,14 @@ server <- function(input, output) {
             filter(Region == Region_to_Eval) %>% #filter for Region chosen to evaluate
             select(Description, Year, Month, Value) %>% 
             mutate(Year = as.character(Year),
-                   Desc = paste(substr(Description,1,10), "...", sep="")#,
-                   #Value = RelabelFunc(Value)
-                   ) %>% 
+                   Desc = paste(substr(Description,1,10), "...", sep=""),
+                   Value = RelabelFunc(Value)[[1]]
+                   ) %>%
             select(Desc, Year, Month, Value) %>% 
             pivot_wider(names_from = Month,
-                         values_from = Value)
+                         values_from = Value) %>% 
+            arrange(Year, Desc)
+          
   },
   options = list(autoWidth = TRUE)
                 
@@ -200,7 +203,8 @@ server <- function(input, output) {
       ) %>% 
       select(Desc, Year, Month, Value) %>% 
       pivot_wider(names_from = Month,
-                  values_from = Value)
+                  values_from = Value) %>% 
+      arrange(Year, Desc)
   },
   options = list(autoWidth = TRUE)
   
@@ -246,7 +250,8 @@ server <- function(input, output) {
             axis.text.y = element_text(hjust = 0.5, size = 10), #y axis aesthetics
             plot.title = element_text(hjust = 0.5, size = 15), #plot title aesthetics
             legend.title = element_text(size = 25), #legend title aesthetics
-            legend.text = element_text(size = 15)) + #legend text aesthetics
+            legend.text = element_text(size = 15), #legend text aesthetics
+            legend.position = "bottom") + 
       labs(title=paste("YoY Cost % Difference Between \n", #graph title (with line break)
                        Drug_Codes_Selected[1], "&", #paste Drug Code 1
                        Drug_Codes_Selected[2]), #paste Drug Code 1
@@ -289,7 +294,8 @@ server <- function(input, output) {
       ) %>% 
       select(Year, Month, Value_Comparison) %>% 
       pivot_wider(names_from = Month,
-                  values_from = Value_Comparison)
+                  values_from = Value_Comparison)%>% 
+      arrange(Year)
   },
   options = list(autoWidth = TRUE)
   
@@ -338,7 +344,8 @@ server <- function(input, output) {
             axis.text.y = element_text(hjust = 0.5, size = 10), #y axis aesthetics
             plot.title = element_text(hjust = 0.5, size = 15), #plot title aesthetics
             legend.title = element_text(size = 25), #legend title aesthetics
-            legend.text = element_text(size = 15)) + #legend text aesthetics
+            legend.text = element_text(size = 15), #legend text aesthetics
+            legend.position = "bottom") + 
       labs(title=paste("Percent of Region \n", #graph title (with line break)
                        Drug_Codes_Selected[1], "&", #paste Drug Code 1
                        Drug_Codes_Selected[2]), #paste Drug Code 1
@@ -388,7 +395,8 @@ server <- function(input, output) {
       ) %>% 
       select(Desc, Year, Month, Value_Comparison) %>% 
       pivot_wider(names_from = Month,
-                  values_from = Value_Comparison)
+                  values_from = Value_Comparison) %>% 
+      arrange(Year, Desc)
   },
   options = list(autoWidth = TRUE)
   
@@ -398,89 +406,103 @@ server <- function(input, output) {
 
 ##### UI #####
 
-
-ui <- shinyUI(fluidPage(
-  
-  titlePanel("Prescription Data Analysis"), #Title panel of page
-  
-  sidebarLayout(
-    sidebarPanel(
-      
-      p('User will select which level to look through descriptions'), #outputted text
-      p('(We can add a custom option for our own groupings too)'), #outputted text
-      
-      
-      selectInput("Region_Input", #variable name for BNF_Level within rest of R code
-                  "Select Region", #printed text
-                  c("England",
-                    "East of England",
-                    "London",
-                    "Midlands",
-                    "North East and Yorkshire",
-                    "North West",              
-                    "South East",              
-                    "South West",              
-                    "Unknown"),
-                  selected = c("England")), #default value
-      
-      
-      selectInput("BNF_Level", #variable name for BNF_Level within rest of R code
-                  "Selection Level", #printed text
-                  c("Custom" = "Custom", #"Printed Option" matched with "Relevant table value"
-                    "Chapter" = "BNF chapter", 
-                    "Section" = "BNF section", 
-                    "Paragraph" = "BNF paragraph"),
-                  selected = c("Section"= "BNF section")), #default value
-      
-      p('Select Drug Code 1'), #outputted text
-      
-      uiOutput("Drug_Codes_1"), #user interface placement of dynamic selectInput for Drug_Codes_1
-
-      p('Select Drug Code 2'), #outputted text
-      
-      uiOutput("Drug_Codes_2"), #user interface placement of dynamic selectInput for Drug_Codes_2
-      
-      selectInput("Metric_Evaluated", #variable name for Metric_Evaluated within rest of R code
-                  "Metric", #printed text
-                  c("Prescriptions", #selection options
-                    "Cost"
-                    )),
-      
-      sliderInput('Year_Range', #Variable name for Year_Range within rest of R code
-                  'Years Range', #printed text
-                  min=2017, max=2020, #range of slider
-                  value=c(2018, 2020), #default values
-                  step=1) # 1 point gap between selections in slider
-      
-      
-    ),
-    
-    mainPanel(
-      # p('User will select different tabs to see different graphs'), #outputted text
-      # p('2016 has no YoY data'), #outputted text
-      # hr(),
-      tabsetPanel(
-        tabPanel("Volume Plot", 
-                 fixedRow(plotOutput("VolumePlot",width="100%"), div(style = "height:150px")),
-                 fixedRow(tableOutput("VolumePlotTable"))
-                 ),#tab1 Volume Plot
-        tabPanel("YoY By Drug Class", 
-                 fixedRow(plotOutput("YoYPlot",width="100%"), div(style = "height:150px")),
-                 fixedRow(tableOutput("YoYPlotTable"))
-                 ), #tab2 YoY Plot
-        tabPanel("YoY Comparing Drug Classes",
-                 fixedRow(plotOutput("YoYCompare",width="100%"), div(style = "height:150px")),
-                 fixedRow(tableOutput("YoYCompareTable"))         
-                 
-                 ), #tab3 YoY compare plot
-        tabPanel("Percent of Region Comparison", 
-                 plotOutput("PercentofRegionComparison", width="100%"), div(style = "height:150px"),
-                fixedRow(tableOutput("PercentofRegionComparisonTable")) #tab4 Percent of Region compare plot
-                )
-      )
-    )
+ui<- shinyUI(
+  navbarPage("IQVIA Project",
+             tabPanel("Prescription Data",
+                      sidebarLayout(
+                        sidebarPanel(
+                          
+                          p('User will select which level to look through descriptions'), #outputted text
+                          p('(We can add a custom option for our own groupings too)'), #outputted text
+                          
+                          
+                          selectInput("Region_Input", #variable name for BNF_Level within rest of R code
+                                      "Select Region", #printed text
+                                      c("England",
+                                        "East of England",
+                                        "London",
+                                        "Midlands",
+                                        "North East and Yorkshire",
+                                        "North West",              
+                                        "South East",              
+                                        "South West",              
+                                        "Unknown"),
+                                      selected = c("England")), #default value
+                          
+                          
+                          selectInput("BNF_Level", #variable name for BNF_Level within rest of R code
+                                      "Selection Level", #printed text
+                                      c("Custom" = "Custom", #"Printed Option" matched with "Relevant table value"
+                                        "Chapter" = "BNF chapter", 
+                                        "Section" = "BNF section", 
+                                        "Paragraph" = "BNF paragraph"),
+                                      selected = c("Section"= "BNF section")), #default value
+                          
+                          p('Select Drug Code 1'), #outputted text
+                          
+                          uiOutput("Drug_Codes_1"), #user interface placement of dynamic selectInput for Drug_Codes_1
+                          
+                          p('Select Drug Code 2'), #outputted text
+                          
+                          uiOutput("Drug_Codes_2"), #user interface placement of dynamic selectInput for Drug_Codes_2
+                          
+                          selectInput("Metric_Evaluated", #variable name for Metric_Evaluated within rest of R code
+                                      "Metric", #printed text
+                                      c("Prescriptions", #selection options
+                                        "Cost"
+                                      )),
+                          
+                          sliderInput('Year_Range', #Variable name for Year_Range within rest of R code
+                                      'Years Range', #printed text
+                                      min=2017, max=2020, #range of slider
+                                      value=c(2018, 2020), #default values
+                                      step=1) # 1 point gap between selections in slider
+                          
+                          
+                        ),
+                        
+                        mainPanel(
+                          # p('User will select different tabs to see different graphs'), #outputted text
+                          # p('2016 has no YoY data'), #outputted text
+                          # hr(),
+                          tabsetPanel(
+                            tabPanel("Volume Plot", 
+                                     fixedRow(plotOutput("VolumePlot",width="100%"), div(style = "height:150px")),
+                                     fixedRow(tableOutput("VolumePlotTable"))
+                            ),#tab1 Volume Plot
+                            tabPanel("YoY By Drug Class", 
+                                     fixedRow(plotOutput("YoYPlot",width="100%"), div(style = "height:150px")),
+                                     fixedRow(tableOutput("YoYPlotTable"))
+                            ), #tab2 YoY Plot
+                            tabPanel("YoY Comparing Drug Classes",
+                                     fixedRow(plotOutput("YoYCompare",width="100%"), div(style = "height:150px")),
+                                     fixedRow(tableOutput("YoYCompareTable"))         
+                                     
+                            ), #tab3 YoY compare plot
+                            tabPanel("Percent of Region Comparison", 
+                                     plotOutput("PercentofRegionComparison", width="100%"), div(style = "height:150px"),
+                                     fixedRow(tableOutput("PercentofRegionComparisonTable")) #tab4 Percent of Region compare plot
+                            )
+                          )
+                        )
+                      )
+             ),
+             tabPanel("Twitter",
+                      p('Twitter')
+             ),
+             navbarMenu("More",
+                        tabPanel("BNF_Table",
+                                 p('BNF_Table Here')
+                        ),
+                        tabPanel("About",
+                                 p('Info Here')
+                        )
+             )
   )
-))  
+  
+)
+
+
 
 
 ##### Run #####
