@@ -14,7 +14,7 @@ drug <- drug %>%
   group_by(date) %>% 
   summarise(drug_count = sum(y_items))
 
-load("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_Zip/tweets_total_clean.RData")
+load("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_Zip/Tweet_Data/tweets_total_clean.RData")
 tweet_analysis <- files
 
 unique(tweet_analysis$label)
@@ -26,6 +26,9 @@ API_covid <- tweet_analysis %>%
   select(Date, count)
 API_general <- tweet_analysis %>% 
   filter(label == "API_general_clean") %>% 
+  select(Date, count)
+API_suicide <- tweet_analysis %>% 
+  filter(label == "API_suicide_clean") %>% 
   select(Date, count)
 mw_suicide <- tweet_analysis %>% 
   filter(label == "mw_suicide_clean" )%>% 
@@ -39,7 +42,7 @@ mw_anx <-tweet_analysis %>%
 ##             Graph 1a: Volume of tweets over time            ##
 #################################################################
 tweet_analysis_filtered <- tweet_analysis %>% 
-  filter(label %in% c("API_anx_clean", "API_covid_clean") & Date > "2020-01-01")
+  filter(label %in% c("API_anx_clean", "API_covid_clean", "API_suicide_clean") & Date > "2020-01-01")
 
 pdf("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_Zip/Analysis/plots/covid_vs_anx_count.pdf", width=10, height=6) 
 

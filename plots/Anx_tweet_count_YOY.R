@@ -4,7 +4,7 @@ library(lubridate)
 library(ggplot2)
 library(dplyr)
 
-load("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_zip/tweets_total_clean.RData")
+load("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_zip/Tweet_Data/tweets_total_clean.RData")
 tweet_analysis <- files
 API_anx <- tweet_analysis %>% 
   filter(label == "API_anx_clean")
@@ -21,10 +21,10 @@ API_anxYoY <- API_anxYoY %>% group_by(year) %>% arrange(Date) %>% select(Date, c
 
 # Graph the data
 # converting date to day 
-day1 <- as.numeric(API_anxYoY[which(API_anxYoY$Date == "2020-03-27"),4][2,1])
-day2 <- as.numeric(API_anxYoY[which(API_anxYoY$Date == "2020-07-04"),4][2,1])
-day3 <- as.numeric(API_anxYoY[which(API_anxYoY$Date == "2020-11-01"),4][2,1])
-day4 <- as.numeric(API_anxYoY[which(API_anxYoY$Date =="2020-12-02"),4][2,1])
+day1 <- as.numeric(API_anxYoY[which(API_anxYoY$Date == "2020-03-27"),4][1,1])
+day2 <- as.numeric(API_anxYoY[which(API_anxYoY$Date == "2020-07-04"),4][1,1])
+day3 <- as.numeric(API_anxYoY[which(API_anxYoY$Date == "2020-11-01"),4][1,1])
+day4 <- as.numeric(API_anxYoY[which(API_anxYoY$Date =="2020-12-02"),4][1,1])
 
 
 pdf("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_Zip/Analysis/plots/Anx_tweet_count_YOY.pdf", width=10, height=6) 

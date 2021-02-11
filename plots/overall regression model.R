@@ -12,7 +12,7 @@ library(dplyr)
 ###########################################################################
 ###########################################################################
 
-df <- read.csv("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Regression/regression_lm.csv")
+df <- read.csv("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_Zip/Analysis/regression_lm.csv")
 # df[1,]
 # k <- df[1,]
 # names(k)<-NULL
@@ -21,7 +21,7 @@ df <- read.csv("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/R
 model <- lm(data = df, 
              formula = outcome ~ worship+ masculine+death+weakness+divine+religion+sleep+swearing_terms+injury+envy+gain+reading+ banking+independence+programming+payment+technology+tourism+air_travel+negotiate)
 
-load("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_Zip/tweets_total_clean.RData")
+load("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_Zip/Tweet_Data/tweets_total_clean.RData")
 tweet_analysis <- files
 tweet_analysis$pred <- predict(model, tweet_analysis)
 
@@ -45,9 +45,8 @@ ggplot() +
 
 dev.off() 
 
-  
 
-
+cor.test(tweet_analysis2020$Date, tweet_analysis2020$pred)
 
 
  
