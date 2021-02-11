@@ -55,12 +55,11 @@ tweet_analysis1 <- tweet_analysis %>%
   summarise(tweet_count = sum(count))
 
 # Merging tweet and drug counts 
-tweet_drug <-  tweet_analysis1 %>% merge(drug1, by=c("year","month"))
-
+# tweet_drug <-  tweet_analysis1 %>% merge(drug1, by=c("year","month"))
 
 ## Correlation for mw anx ds 
 # grouping tweets by months and year and sum count 
-mw_anx1 <- mw_anx %>%
+API_anx1 <- API_anx %>%
   dplyr::mutate(year = lubridate::year(Date), 
                 month = lubridate::month(Date)) %>% 
   select(year, month, count) %>% 
@@ -68,13 +67,16 @@ mw_anx1 <- mw_anx %>%
   summarise(tweet_count = sum(count))
 
 # Merging tweet and drug counts 
-mw_anx_drug <-  drug1 %>% merge(mw_anx1, by=c("year","month"))
+anx_drug <-  drug1 %>% merge(API_anx1, by=c("year","month"))
+
+# removing outlier 
+anx_drug <- slice(anx_drug, -17)
 
 # Plotting correlation 
 pdf("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_Zip/Analysis/plots/drugs_v_anx.pdf", width=10, height=6) 
 ggplot() +
-  geom_point(data = mw_anx_drug, aes(tweet_count, drug_count, colour = 'red')) 
-cor.test(mw_anx_drug$tweet_count, mw_anx_drug$drug_count) +
+  geom_point(data = anx_drug, aes(tweet_count, drug_count, colour = 'red')) +
   geom_smooth()
-
 dev.off() 
+
+cor.test(anx_drug$tweet_count, anx_drug$drug_count)
