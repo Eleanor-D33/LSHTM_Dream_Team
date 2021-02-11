@@ -37,3 +37,9 @@ pdf("/Users/eleanordavies/Desktop/HDS_Content/Term_2/Data_Challenge/Final_Zip/An
   theme_minimal()
 
 dev.off() 
+
+API_anxYoY_2020 <- API_anxYoY %>% filter(year == 2020) 
+API_anxYoY_2019 <- API_anxYoY %>% filter(year == 2019)
+
+mean(API_anxYoY_2020$count)
+mean(API_anxYoY_2019$count)
